@@ -63,9 +63,16 @@ export const LabelModal: React.FC<LabelModalProps> = ({ visible, onClose, data }
   
   let quantityString = "";
   if (data.isBoxMode) {
-      quantityString = `${data.gramWeight}克/盒  共 ${data.totalBottles}盒`;
+      // For single box label, just show weight. If multiple, show count. 
+      // But requirement is "Always single box", so data.totalBottles passed will likely be 1.
+      if (data.totalBottles === 1) {
+          quantityString = `${data.gramWeight}克/盒`;
+      } else {
+          quantityString = `${data.gramWeight}克/盒  共 ${data.totalBottles}盒`;
+      }
   } else {
-      quantityString = `${data.rootsPerBottle}根/瓶  共 ${data.totalBottles}瓶`;
+      // For bottles, we show "X roots/bottle x Y bottles" (Y is bottles per box)
+      quantityString = `${data.rootsPerBottle}根/瓶  x ${data.totalBottles}瓶`;
   }
 
   const handlePrint = () => {

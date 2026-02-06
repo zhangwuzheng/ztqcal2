@@ -128,17 +128,34 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
     // Parse weight for box mode from details string
     // e.g. "... (50克/盒) ..."
     let weight = 0;
+    let unitCount = 0; // The count per unit (box) for the label
+
     if (item.type === 'box') {
         const match = item.details.match(/(\d+)克\/盒/);
         if (match && match[1]) {
             weight = parseInt(match[1]);
+        }
+        unitCount = 1; // Box mode unit is 1
+    } else {
+        // Bottle mode
+        // Try to extract "每盒X瓶" from details
+        const match = item.details.match(/每盒(\d+)瓶/);
+        if (match && match[1]) {
+            unitCount = parseInt(match[1]);
+        } else {
+            // Check for Bulk
+            if (item.details.includes('散装')) {
+                unitCount = 1;
+            } else {
+                unitCount = 1; 
+            }
         }
     }
 
     setCurrentLabelData({
       specName: item.specName,
       rootsPerBottle: item.rootsPerBottle || 0,
-      totalBottles: item.bottleCount, // For labels, this usually means unit count or bottle count
+      totalBottles: unitCount, // Pass UNIT quantity, not total order quantity
       gramWeight: weight,
       isBoxMode: item.type === 'box'
     });
@@ -174,8 +191,8 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
   }
 
   return (
-    <div className="space-y-6 pb-12 animate-fadeIn relative">
-      {/* Label Modal Injection */}
+    <>
+      {/* Label Modal Injection - Moved OUTSIDE the animated div to fix stacking context issues */}
       {showLabelModal && currentLabelData && (
         <LabelModal 
           visible={showLabelModal} 
@@ -184,165 +201,167 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
         />
       )}
 
-      {/* Header Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-xl font-bold text-brand-900">历史提交记录</h2>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <button 
-            onClick={triggerImport}
-            className="text-sm bg-white border border-stone-300 text-stone-600 px-3 py-2 rounded-lg hover:bg-stone-50 transition-colors font-bold flex items-center gap-2 flex-1 sm:flex-none justify-center"
-          >
-             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-             导入备份
-          </button>
-          <input type="file" ref={fileInputRef} onChange={handleImportFile} className="hidden" accept=".json" />
+      <div className="space-y-6 pb-12 animate-fadeIn relative">
+        {/* Header Actions */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-xl font-bold text-brand-900">历史提交记录</h2>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <button 
+              onClick={triggerImport}
+              className="text-sm bg-white border border-stone-300 text-stone-600 px-3 py-2 rounded-lg hover:bg-stone-50 transition-colors font-bold flex items-center gap-2 flex-1 sm:flex-none justify-center"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+              导入备份
+            </button>
+            <input type="file" ref={fileInputRef} onChange={handleImportFile} className="hidden" accept=".json" />
 
-          <button 
-            onClick={handleExportJSON}
-            className="text-sm bg-brand-100 text-brand-800 px-3 py-2 rounded-lg hover:bg-brand-200 transition-colors font-bold flex items-center gap-2 flex-1 sm:flex-none justify-center"
-          >
-             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-             备份数据
-          </button>
-          
-          <button 
-            onClick={handleExportCSV}
-            className="text-sm bg-accent-600 text-white px-3 py-2 rounded-lg hover:bg-accent-700 transition-colors shadow-sm font-bold flex items-center gap-2 flex-1 sm:flex-none justify-center"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            导出表格
-          </button>
-          
-          <button 
-            onClick={() => { if(confirm('警告：确定清空所有本地记录吗？此操作不可撤销。')) onClear(); }}
-            className="text-sm text-red-500 hover:text-red-700 px-3 py-2 rounded hover:bg-red-50 transition-colors border border-transparent hover:border-red-100"
-          >
-            清空
-          </button>
+            <button 
+              onClick={handleExportJSON}
+              className="text-sm bg-brand-100 text-brand-800 px-3 py-2 rounded-lg hover:bg-brand-200 transition-colors font-bold flex items-center gap-2 flex-1 sm:flex-none justify-center"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+              备份数据
+            </button>
+            
+            <button 
+              onClick={handleExportCSV}
+              className="text-sm bg-accent-600 text-white px-3 py-2 rounded-lg hover:bg-accent-700 transition-colors shadow-sm font-bold flex items-center gap-2 flex-1 sm:flex-none justify-center"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              导出表格
+            </button>
+            
+            <button 
+              onClick={() => { if(confirm('警告：确定清空所有本地记录吗？此操作不可撤销。')) onClear(); }}
+              className="text-sm text-red-500 hover:text-red-700 px-3 py-2 rounded hover:bg-red-50 transition-colors border border-transparent hover:border-red-100"
+            >
+              清空
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {batches.map((batch) => (
+            <div key={batch.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md">
+              {/* Batch Header */}
+              <div 
+                className="px-6 py-4 cursor-pointer flex justify-between items-center bg-stone-50 hover:bg-stone-100 transition-colors"
+                onClick={() => setExpandedId(expandedId === batch.id ? null : batch.id)}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                  <span className="font-bold text-brand-900 text-lg">{batch.date}</span>
+                  <span className="text-xs text-stone-500 bg-white px-2 py-0.5 rounded border border-stone-200 inline-block w-fit shadow-sm">
+                    {batch.itemCount} 项商品 · ID: {batch.id.slice(-4)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  {showChannel && (
+                    <div className="text-right hidden sm:block">
+                      <div className="text-[10px] text-stone-400 uppercase leading-none">藏境成本</div>
+                      <div className="font-medium text-stone-600">¥{batch.totalChannelPrice.toLocaleString()}</div>
+                    </div>
+                  )}
+                  <div className="text-right">
+                    <div className="text-[10px] text-stone-400 uppercase leading-none">零售总额</div>
+                    <div className="font-bold text-accent-600">¥{batch.totalRetail.toLocaleString()}</div>
+                  </div>
+                  <svg 
+                    className={`w-5 h-5 text-stone-400 transition-transform ${expandedId === batch.id ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Batch Details Table */}
+              {expandedId === batch.id && (
+                <div className="border-t border-stone-200">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-stone-100 text-sm whitespace-nowrap">
+                      <thead className="bg-stone-50/50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase">规格/类型</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase">包装详情</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase">装量信息</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase max-w-xs">描述</th>
+                            {showNagqu && <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase">那曲价</th>}
+                            {showChannel && <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase">藏境价</th>}
+                            <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase">零售价</th>
+                            <th className="px-4 py-3 text-center text-xs font-medium text-stone-500 uppercase">操作</th>
+                          </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-100 bg-white">
+                        {batch.items.map(item => (
+                          <tr key={item.id} className="hover:bg-stone-50 transition-colors group">
+                            <td className="px-4 py-3">
+                              <div className="font-bold text-brand-900">{item.specName}</div>
+                              <div className="text-xs text-stone-400">{item.rootsPerGram || '-'} 根/g</div>
+                            </td>
+                            <td className="px-4 py-3 text-stone-600">
+                              <div className="flex flex-col text-xs gap-0.5">
+                                  <span className="font-medium">{item.bottleType || '-'}</span>
+                                  <span className="text-stone-400">{item.boxType || '-'}</span>
+                                  {item.packagingColor && (
+                                    <span className="inline-flex items-center gap-1 mt-0.5">
+                                        <span className={`w-2 h-2 rounded-full ${item.packagingColor.includes('金') ? 'bg-amber-400' : item.packagingColor.includes('红') ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
+                                        <span className="text-[10px]">{item.packagingColor}</span>
+                                    </span>
+                                  )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-stone-600">
+                              {item.type === 'bottle' ? (
+                                  <div className="flex flex-col text-xs">
+                                      <span><span className="font-bold">{item.rootsPerBottle}</span> 根/瓶</span>
+                                      <span className="text-stone-500">x {item.bottleCount} 瓶</span>
+                                      <span className="text-[10px] text-stone-400 mt-0.5">总 {item.totalRoots} 根</span>
+                                  </div>
+                              ) : (
+                                  <div className="flex flex-col text-xs">
+                                      <span>礼盒装</span>
+                                      <span className="text-[10px] text-stone-400">总 {item.totalRoots} 根</span>
+                                  </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-stone-600 text-xs max-w-xs whitespace-normal">
+                              <div className="mb-1 line-clamp-2" title={item.details}>{item.details}</div>
+                            </td>
+                            {showNagqu && <td className="px-4 py-3 text-right text-stone-400 text-[10px]">¥{item.totalNagquPrice.toLocaleString()}</td>}
+                            {showChannel && <td className="px-4 py-3 text-right text-stone-600 font-medium">¥{item.totalChannelPrice.toLocaleString()}</td>}
+                            <td className="px-4 py-3 text-right font-bold text-accent-600">¥{item.totalRetail.toLocaleString()}</td>
+                            <td className="px-4 py-3 text-center">
+                              <button
+                                onClick={(e) => handleOpenLabel(item, e)}
+                                className="bg-brand-900 text-white hover:bg-brand-800 px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-md hover:shadow-lg inline-flex items-center gap-1 whitespace-nowrap"
+                                title="生成打印标签"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                标签
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                        <tr className="bg-stone-50">
+                          <td colSpan={4} className="px-4 py-3 text-right font-bold text-stone-900 text-sm">本单合计</td>
+                          {showNagqu && <td className="px-4 py-3 text-right text-stone-400 text-xs">¥{batch.totalNagquPrice.toLocaleString()}</td>}
+                          {showChannel && <td className="px-4 py-3 text-right text-stone-700 font-bold">¥{batch.totalChannelPrice.toLocaleString()}</td>}
+                          <td className="px-4 py-3 text-right text-accent-600 font-black">¥{batch.totalRetail.toLocaleString()}</td>
+                          <td></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
-
-      <div className="space-y-4">
-        {batches.map((batch) => (
-          <div key={batch.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md">
-            {/* Batch Header */}
-            <div 
-              className="px-6 py-4 cursor-pointer flex justify-between items-center bg-stone-50 hover:bg-stone-100 transition-colors"
-              onClick={() => setExpandedId(expandedId === batch.id ? null : batch.id)}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                <span className="font-bold text-brand-900 text-lg">{batch.date}</span>
-                <span className="text-xs text-stone-500 bg-white px-2 py-0.5 rounded border border-stone-200 inline-block w-fit shadow-sm">
-                  {batch.itemCount} 项商品 · ID: {batch.id.slice(-4)}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                {showChannel && (
-                  <div className="text-right hidden sm:block">
-                    <div className="text-[10px] text-stone-400 uppercase leading-none">藏境成本</div>
-                    <div className="font-medium text-stone-600">¥{batch.totalChannelPrice.toLocaleString()}</div>
-                  </div>
-                )}
-                <div className="text-right">
-                  <div className="text-[10px] text-stone-400 uppercase leading-none">零售总额</div>
-                  <div className="font-bold text-accent-600">¥{batch.totalRetail.toLocaleString()}</div>
-                </div>
-                <svg 
-                  className={`w-5 h-5 text-stone-400 transition-transform ${expandedId === batch.id ? 'rotate-180' : ''}`} 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-
-            {/* Batch Details Table */}
-            {expandedId === batch.id && (
-              <div className="border-t border-stone-200">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-stone-100 text-sm whitespace-nowrap">
-                    <thead className="bg-stone-50/50">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase">规格/类型</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase">包装详情</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase">装量信息</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase max-w-xs">描述</th>
-                          {showNagqu && <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase">那曲价</th>}
-                          {showChannel && <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase">藏境价</th>}
-                          <th className="px-4 py-3 text-right text-xs font-medium text-stone-500 uppercase">零售价</th>
-                          <th className="px-4 py-3 text-center text-xs font-medium text-stone-500 uppercase">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-stone-100 bg-white">
-                      {batch.items.map(item => (
-                        <tr key={item.id} className="hover:bg-stone-50 transition-colors group">
-                          <td className="px-4 py-3">
-                             <div className="font-bold text-brand-900">{item.specName}</div>
-                             <div className="text-xs text-stone-400">{item.rootsPerGram || '-'} 根/g</div>
-                          </td>
-                          <td className="px-4 py-3 text-stone-600">
-                            <div className="flex flex-col text-xs gap-0.5">
-                                <span className="font-medium">{item.bottleType || '-'}</span>
-                                <span className="text-stone-400">{item.boxType || '-'}</span>
-                                {item.packagingColor && (
-                                   <span className="inline-flex items-center gap-1 mt-0.5">
-                                      <span className={`w-2 h-2 rounded-full ${item.packagingColor.includes('金') ? 'bg-amber-400' : item.packagingColor.includes('红') ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
-                                      <span className="text-[10px]">{item.packagingColor}</span>
-                                   </span>
-                                )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-stone-600">
-                            {item.type === 'bottle' ? (
-                                <div className="flex flex-col text-xs">
-                                    <span><span className="font-bold">{item.rootsPerBottle}</span> 根/瓶</span>
-                                    <span className="text-stone-500">x {item.bottleCount} 瓶</span>
-                                    <span className="text-[10px] text-stone-400 mt-0.5">总 {item.totalRoots} 根</span>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col text-xs">
-                                    <span>礼盒装</span>
-                                    <span className="text-[10px] text-stone-400">总 {item.totalRoots} 根</span>
-                                </div>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-stone-600 text-xs max-w-xs whitespace-normal">
-                             <div className="mb-1 line-clamp-2" title={item.details}>{item.details}</div>
-                          </td>
-                          {showNagqu && <td className="px-4 py-3 text-right text-stone-400 text-[10px]">¥{item.totalNagquPrice.toLocaleString()}</td>}
-                          {showChannel && <td className="px-4 py-3 text-right text-stone-600 font-medium">¥{item.totalChannelPrice.toLocaleString()}</td>}
-                          <td className="px-4 py-3 text-right font-bold text-accent-600">¥{item.totalRetail.toLocaleString()}</td>
-                          <td className="px-4 py-3 text-center">
-                             <button
-                               onClick={(e) => handleOpenLabel(item, e)}
-                               className="text-brand-900 hover:text-accent-600 bg-stone-100 hover:bg-brand-50 px-3 py-1.5 rounded-md text-xs font-bold transition-colors inline-flex items-center gap-1 border border-stone-200"
-                               title="生成打印标签"
-                             >
-                               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                               </svg>
-                               标签
-                             </button>
-                          </td>
-                        </tr>
-                      ))}
-                      <tr className="bg-stone-50">
-                        <td colSpan={4} className="px-4 py-3 text-right font-bold text-stone-900 text-sm">本单合计</td>
-                        {showNagqu && <td className="px-4 py-3 text-right text-stone-400 text-xs">¥{batch.totalNagquPrice.toLocaleString()}</td>}
-                        {showChannel && <td className="px-4 py-3 text-right text-stone-700 font-bold">¥{batch.totalChannelPrice.toLocaleString()}</td>}
-                        <td className="px-4 py-3 text-right text-accent-600 font-black">¥{batch.totalRetail.toLocaleString()}</td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 };

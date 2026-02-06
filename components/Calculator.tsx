@@ -415,7 +415,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
                <div className="absolute top-1/2 w-full flex justify-between px-4 pointer-events-none">
                   <button 
                      className="pointer-events-auto bg-white/20 hover:bg-white/30 text-white p-2 rounded-full backdrop-blur transition-all"
-                     onClick={(e) => { e.stopPropagation(); setPreviewIndex(prev => (prev !== null && prev > 0 ? prev - 1 : activeGallery.length - 1)); }}
+                     onClick={(e) => { e.stopPropagation(); setPreviewIndex(prev => (prev !== null && prev < activeGallery.length - 1 ? prev + 1 : 0)); }}
                   >
                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                   </button>
@@ -452,14 +452,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
         data={{
           specName: spec.name,
           rootsPerBottle: containerType === 'small-single' ? 1 : containerType === 'small-multi' ? bottleRule.smallBottleCount : bottleRule.mediumBottleCount,
-          totalBottles: isBoxMode ? quantity : quantity * boxConfig, // Actually in bottle mode we want total bottles? Or per box? Sticker is usually per Unit.
-          // Wait, the sticker says "共 10瓶". That implies the whole sales unit.
-          // If packagingType is Exquisite (e.g. 10 bottles/box), the sticker is likely for the *Box*.
-          // So totalBottles should probably be the boxConfig (bottles per box) if it's a box label.
-          // But if it's bulk, it might be 1. 
-          // Let's assume the label is for the "Sales Unit" (One Box).
-          // So for Bottle Mode: totalBottles = boxConfig (bottles inside the box).
-          // For Round Box mode, it's just weight.
+          totalBottles: isBoxMode ? 1 : boxConfig, // Pass UNIT quantity (bottles per box), NOT total. For Box mode, pass 1 unit.
           gramWeight: currentWeight,
           isBoxMode: isBoxMode
         }}
