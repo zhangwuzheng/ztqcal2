@@ -14,53 +14,56 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: 'calculator', label: '计算器', visible: true },
-    { id: 'history', label: '历史记录', visible: true },
-    { id: 'settings', label: '数据设置', visible: userRole !== 'guest' },
+    { id: 'calculator', label: '定价计算', visible: true },
+    { id: 'history', label: '销售记录', visible: true },
+    { id: 'settings', label: '数据配置', visible: userRole !== 'guest' },
   ].filter(item => item.visible) as { id: 'calculator' | 'settings' | 'history', label: string }[];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-stone-50">
-      <header className="bg-brand-900 text-stone-100 shadow-xl sticky top-0 z-50 border-b border-brand-800">
+    <div className="min-h-screen flex flex-col font-sans bg-brand-50 text-brand-900">
+      <header className="bg-brand-950 text-brand-100 shadow-2xl sticky top-0 z-50 border-b border-accent-600/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
+          <div className="flex justify-between h-14 sm:h-20 items-center">
             {/* Logo Section */}
-            <div className="flex items-center gap-4 cursor-pointer group" onClick={() => onTabChange('calculator')}>
-              <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center bg-brand-800 rounded-lg border border-brand-700 shadow-inner overflow-hidden group-hover:border-accent-500/30 transition-colors">
+            <div className="flex items-center gap-2 sm:gap-4 cursor-pointer flex-shrink-0" onClick={() => onTabChange('calculator')}>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="relative w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center bg-brand-900 rounded border border-accent-500/30 overflow-hidden transition-colors duration-500">
                   <img 
                     src={IMAGES.logoSquare}
                     alt="藏境山水 Logo" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover opacity-100"
                   />
                 </div>
-                <div className="flex flex-col">
-                  <h1 className="text-lg font-bold tracking-wider text-stone-50 leading-tight group-hover:text-white transition-colors">藏境山水扎塔奇</h1>
-                  <p className="text-[10px] text-accent-500 tracking-widest uppercase">Premium Cordyceps</p>
+                <div className="flex flex-col justify-center">
+                  {/* Updated: Compact font size for mobile */}
+                  <h1 className="text-base sm:text-2xl font-serif font-bold tracking-[0.1em] sm:tracking-[0.2em] text-accent-500 leading-none sm:leading-tight whitespace-nowrap">
+                    藏境山水<span className="text-accent-500">.</span>扎塔奇
+                  </h1>
+                  <p className="text-[8px] sm:text-[10px] text-stone-400 tracking-[0.2em] sm:tracking-[0.4em] uppercase mt-0.5 hidden sm:block">Premium Cordyceps</p>
                 </div>
               </div>
               
-              {/* Divider and Secondary Logo */}
-              <div className="hidden md:flex items-center pl-4 border-l border-brand-700/50 h-8">
+              {/* Divider and Secondary Logo - No hover effect (Removed 'group' from parent) */}
+              <div className="flex items-center pl-2 sm:pl-4 border-l border-brand-800 h-5 sm:h-8 ml-1 sm:ml-2">
                  <img 
                    src={IMAGES.logoText}
                    alt="ZTQ Logo" 
-                   className="h-8 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity" 
+                   className="h-3 sm:h-8 w-auto object-contain opacity-100" 
                  />
               </div>
             </div>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center space-x-4">
-              <nav className="flex space-x-2">
+            <div className="hidden md:flex items-center space-x-6">
+              <nav className="flex space-x-1">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => onTabChange(item.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    className={`px-5 py-2 rounded text-sm tracking-widest transition-all duration-300 font-medium ${
                       activeTab === item.id 
-                        ? 'bg-brand-800 text-accent-500 shadow-sm ring-1 ring-brand-700' 
-                        : 'text-stone-400 hover:text-stone-100 hover:bg-brand-800'
+                        ? 'text-accent-500 bg-white/5 border border-white/5' 
+                        : 'text-stone-400 hover:text-brand-50 hover:bg-white/5'
                     }`}
                   >
                     {item.label}
@@ -68,19 +71,19 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                 ))}
               </nav>
               
-              <div className="h-6 w-px bg-brand-700 mx-2"></div>
+              <div className="h-4 w-px bg-brand-800"></div>
 
               {userRole === 'guest' ? (
                 <button 
                   onClick={onLoginClick}
-                  className="text-sm font-bold text-stone-300 hover:text-white transition-colors"
+                  className="text-xs font-bold tracking-widest text-accent-500 border border-accent-500/50 px-4 py-1.5 rounded hover:bg-accent-500 hover:text-brand-950 transition-all duration-300"
                 >
-                  登录
+                  LOGIN
                 </button>
               ) : (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs bg-brand-800 px-2 py-1 rounded text-accent-500 border border-brand-700 uppercase tracking-wider font-bold">
-                    {userRole === 'admin' ? '管理员' : 'ZWZ'}
+                <div className="flex items-center gap-4">
+                  <span className="text-[10px] bg-brand-900 px-2 py-1 rounded text-accent-500 border border-accent-500/30 uppercase tracking-[0.2em]">
+                    {userRole === 'admin' ? 'ADMIN' : 'STAFF'}
                   </span>
                   <button 
                     onClick={onLogout}
@@ -92,22 +95,25 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center gap-3">
+            {/* Mobile Menu Button - Ensure high visibility and z-index */}
+            <div className="md:hidden flex items-center gap-3 z-50">
               {userRole !== 'guest' && (
-                 <span className="text-[10px] bg-brand-800 px-1.5 py-0.5 rounded text-accent-500 border border-brand-700 uppercase font-bold">
+                 <span className="text-[10px] text-accent-500 font-serif italic border border-accent-500/20 px-1 rounded">
                     {userRole === 'admin' ? 'ADM' : 'ZWZ'}
                   </span>
               )}
               <button 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-md text-stone-400 hover:text-white hover:bg-brand-800 focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                }}
+                className="p-2 text-accent-500 hover:bg-white/10 rounded transition-colors active:scale-95"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                   ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
                   )}
                 </svg>
               </button>
@@ -117,8 +123,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
         {/* Mobile Nav Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-brand-800 border-t border-brand-700 shadow-xl">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="md:hidden bg-brand-900 border-t border-brand-800 animate-fadeIn absolute w-full shadow-2xl z-40">
+            <div className="px-4 pt-4 pb-6 space-y-2">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -126,25 +132,25 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                     onTabChange(item.id);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`block w-full text-left px-3 py-3 rounded-md text-base font-medium ${
+                  className={`block w-full text-left px-4 py-3 rounded text-sm tracking-[0.2em] font-serif font-medium ${
                     activeTab === item.id 
-                      ? 'bg-brand-900 text-accent-500' 
-                      : 'text-stone-300 hover:text-white hover:bg-brand-700'
+                      ? 'bg-brand-950 text-accent-500 border-l-2 border-accent-500' 
+                      : 'text-stone-300 hover:text-brand-50'
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
-              <div className="border-t border-brand-700 my-2 pt-2">
+              <div className="border-t border-brand-800 my-4 pt-4">
                 {userRole === 'guest' ? (
                   <button 
                     onClick={() => {
                       onLoginClick();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left px-3 py-3 rounded-md text-base font-bold text-accent-500 hover:bg-brand-700"
+                    className="block w-full text-center px-4 py-3 rounded border border-accent-500/30 text-accent-500 tracking-widest text-sm hover:bg-accent-500 hover:text-brand-950 transition-colors font-bold"
                   >
-                    用户登录
+                    员工登录
                   </button>
                 ) : (
                    <button 
@@ -152,9 +158,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
                       onLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-stone-400 hover:text-white hover:bg-brand-700"
+                    className="block w-full text-left px-4 py-3 text-sm text-stone-400 hover:text-white"
                   >
-                    退出登录
+                    安全退出
                   </button>
                 )}
               </div>
@@ -162,7 +168,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           </div>
         )}
       </header>
-      <main className="flex-grow max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-12 relative z-0">
+         {/* Background Decoration */}
+         <div className="fixed top-0 left-0 w-full h-full bg-noise opacity-50 pointer-events-none z-[-1]"></div>
         {children}
       </main>
     </div>

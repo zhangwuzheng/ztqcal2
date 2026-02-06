@@ -3,63 +3,90 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>藏境扎塔奇计算器</title>
+    <title>藏境山水.扎塔奇</title>
+    
+    <!-- Font Imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['"Noto Sans SC"', 'sans-serif'],
+              serif: ['"Noto Serif SC"', 'serif'],
+            },
             colors: {
               brand: {
-                900: '#1c1917', // stone-900
-                800: '#292524', // stone-800
-                700: '#44403c', // stone-700
-                100: '#f5f5f4', // stone-100
-                50: '#fafaf9',  // stone-50
+                950: '#0C0C0B', // Deepest Charcoal
+                900: '#1A1918', // Charcoal
+                800: '#2A2826', // Dark Brown/Grey
+                700: '#44403c', 
+                100: '#F5F2EB', // Warm Beige for subtle highlights
+                50: '#FDFBF7',  // Paper White Main BG
               },
               accent: {
-                600: '#d97706', // amber-600
-                500: '#f59e0b', // amber-500
-                100: '#fef3c7', // amber-100
+                600: '#B09265', // Darker Gold
+                500: '#C6A87C', // Matte Gold (Primary Accent)
+                400: '#D5BC96', // Light Gold
+                300: '#E0CGA0',
+                200: '#EBE0C5',
+                100: '#F2EBD9', // Pale Gold Background
+                50: '#F9F6EF',  
+              },
+              stone: {
+                300: '#D6D3D1',
+                400: '#78716C', // Darkened significantly for readability (was #8A8885)
+                500: '#57534E', // Darkened significantly (was #706E6B)
+                600: '#44403C',
+                900: '#1C1917',
               }
+            },
+            backgroundImage: {
+              'noise': "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E')",
             }
           }
         }
       }
     </script>
     <style>
+       body {
+         background-color: #FDFBF7;
+       }
        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
+          width: 4px;
+          height: 4px;
         }
         ::-webkit-scrollbar-track {
           background: transparent; 
         }
         ::-webkit-scrollbar-thumb {
-          background: #a8a29e; 
-          border-radius: 3px;
+          background: #C6A87C; 
+          border-radius: 2px;
         }
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(5px); }
+          from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out forwards;
+          animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         
         /* Price update animation */
         @keyframes pricePulse {
-          0% { transform: scale(1); filter: brightness(1); }
-          50% { transform: scale(1.1); filter: brightness(1.1); text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-          100% { transform: scale(1); filter: brightness(1); }
+          0% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.05); opacity: 1; color: #C6A87C; }
+          100% { transform: scale(1); opacity: 1; }
         }
         .animate-price {
-          animation: pricePulse 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-          display: inline-block; /* Necessary for transform to work on span */
+          animation: pricePulse 0.4s ease-out;
+          display: inline-block;
         }
 
-        /* Hide scrollbar for clean UI but allow scroll */
         .no-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -88,6 +115,12 @@
             background: white;
           }
         }
+        
+        /* Custom Selection Tint */
+        ::selection {
+          background: #C6A87C;
+          color: #fff;
+        }
     </style>
   <script type="importmap">
 {
@@ -99,7 +132,7 @@
 }
 </script>
 </head>
-  <body class="bg-stone-100 text-stone-900">
+  <body class="bg-brand-50 text-brand-900 font-sans antialiased selection:bg-accent-500 selection:text-white">
     <div id="root"></div>
   </body>
 </html>

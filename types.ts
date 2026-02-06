@@ -27,12 +27,16 @@ export interface ProductionItem {
   // New fields for detailed history
   rootsPerGram: string;
   rootsPerBottle: number;
-  bottleCount: number;
+  bottleCount: number; // Total bottles/items count
   bottleType: string;
   boxType: string;
   packagingColor: string;
   ecommerceSpec: string;
   
+  // Added for granular export data
+  unitCount?: number;     // Number of boxes/units ordered
+  itemsPerUnit?: number;  // Number of items per box/unit
+
   type: 'bottle' | 'box';
   details: string; // e.g., "Small Bottle (5 roots) x 10 bottles"
   totalRoots: number;
