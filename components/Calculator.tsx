@@ -48,6 +48,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
   // Price visibility
   const showNagqu = userRole === 'zwz';
   const showChannel = userRole === 'zwz' || userRole === 'admin';
+  const showMinPrice = userRole !== 'guest';
 
   // Determine mode
   const isBoxMode = containerType === 'round';
@@ -129,6 +130,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
     totalNagquPrice: 0,
     totalChannelPrice: 0,
     totalRetail: 0,
+    totalMinSalesPrice: 0,
     description: ''
   };
 
@@ -146,6 +148,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
     calculated.totalNagquPrice = calculated.totalRoots * spec.nagquPrice;
     calculated.totalChannelPrice = calculated.totalRoots * spec.channelPrice;
     calculated.totalRetail = calculated.totalRoots * spec.retailPrice;
+    calculated.totalMinSalesPrice = calculated.totalRoots * spec.minSalesPrice;
     
     let typeName = '';
     if (containerType === 'small-single') typeName = '单根小瓶';
@@ -171,6 +174,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
     calculated.totalNagquPrice = calculated.totalRoots * spec.nagquPrice;
     calculated.totalChannelPrice = calculated.totalRoots * spec.channelPrice;
     calculated.totalRetail = calculated.totalRoots * spec.retailPrice;
+    calculated.totalMinSalesPrice = calculated.totalRoots * spec.minSalesPrice;
     calculated.description = `${spec.name}规格 · 豪华圆盒 (${currentWeight}g/盒) · 约${rootsPerBox}根 · 共${quantity}盒`;
   }
 
@@ -662,10 +666,21 @@ export const Calculator: React.FC<CalculatorProps> = ({ data, onAddItem, userRol
             </div>
 
             <div className="bg-white p-4 text-center mb-8 border border-accent-200 shadow-sm">
-               <span className="block text-[10px] uppercase tracking-widest text-stone-500 mb-1 font-bold">建议零售总价</span>
-               <span key={calculated.totalRetail} className="font-serif text-3xl font-bold text-accent-600 animate-price">
-                 <span className="text-lg align-top mr-1">¥</span>{calculated.totalRetail.toLocaleString()}
-               </span>
+               <div className="mb-3">
+                 <span className="block text-[10px] uppercase tracking-widest text-stone-500 mb-1 font-bold">建议零售总价</span>
+                 <span key={calculated.totalRetail} className="font-serif text-3xl font-bold text-accent-600 animate-price block">
+                   <span className="text-lg align-top mr-1">¥</span>{calculated.totalRetail.toLocaleString()}
+                 </span>
+               </div>
+               
+               {showMinPrice && (
+                 <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-center gap-2">
+                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">最低折扣限价 (8折)</span>
+                    <span className="font-serif text-base font-bold text-brand-900">
+                      ¥{calculated.totalMinSalesPrice.toLocaleString()}
+                    </span>
+                 </div>
+               )}
             </div>
             
             <div className="text-xs text-stone-600 font-medium leading-relaxed mb-8 text-justify">

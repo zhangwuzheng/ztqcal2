@@ -50,7 +50,7 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `藏境扎塔奇_销售记录_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `藏境扎塔奇_订单记录_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -63,7 +63,7 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `ZTQ_History_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `ZTQ_Order_History_Backup_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -127,7 +127,7 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p className="text-sm font-serif tracking-widest uppercase mb-6 font-bold">No History Records</p>
+        <p className="text-sm font-serif tracking-widest uppercase mb-6 font-bold">No Order Records</p>
         <button onClick={triggerImport} className="text-xs border border-stone-300 px-6 py-2 hover:bg-brand-900 hover:text-white transition-colors">
             Import Backup
         </button>
@@ -142,7 +142,7 @@ export const History: React.FC<HistoryProps> = ({ batches, onClear, userRole, on
 
       <div className="space-y-8 animate-fadeIn">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <h2 className="text-2xl font-serif font-bold text-brand-900 tracking-wide">销售记录归档</h2>
+          <h2 className="text-2xl font-serif font-bold text-brand-900 tracking-wide">订单记录归档</h2>
           <div className="flex flex-wrap gap-3">
             <input type="file" ref={fileInputRef} onChange={handleImportFile} className="hidden" accept=".json" />
             <button onClick={triggerImport} className="px-4 py-2 border border-stone-200 text-stone-500 text-xs tracking-widest uppercase hover:bg-white transition-colors">Import</button>

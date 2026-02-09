@@ -15,7 +15,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
 
   const navItems = [
     { id: 'calculator', label: '定价计算', visible: true },
-    { id: 'history', label: '销售记录', visible: true },
+    { id: 'history', label: '订单记录', visible: true },
     { id: 'settings', label: '数据配置', visible: userRole !== 'guest' },
   ].filter(item => item.visible) as { id: 'calculator' | 'settings' | 'history', label: string }[];
 
